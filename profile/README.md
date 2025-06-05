@@ -8,7 +8,7 @@ The core projects include [finki-scraper](https://github.com/finki-hub/finki-scr
 
 ## Licensing
 
-All projects within the organization are licensed under the **MIT License**.
+All projects within the organization are licensed under the terms of the **MIT License**.
 
 ## Disclaimers
 
