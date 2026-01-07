@@ -7,6 +7,10 @@ on:
         description: "Package name for the Docker image (defaults to repository name)"
         type: string
         required: false
+      submodules:
+        description: "Whether to checkout submodules: false, true, or recursive"
+        type: string
+        default: "false"
       platforms:
         description: "Docker platforms to build for"
         type: string
@@ -27,6 +31,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
+        with:
+          submodules: ${{ inputs.submodules }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
