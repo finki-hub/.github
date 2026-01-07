@@ -1,0 +1,27 @@
+name: Reusable Vitest
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        default: "lts/*"
+
+jobs:
+  vitest:
+    name: Vitest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install Dependencies
+        run: npm i
+
+      - name: Run Vitest
+        run: npm test
