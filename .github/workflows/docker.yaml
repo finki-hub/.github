@@ -3,6 +3,10 @@ name: Reusable Docker
 on:
   workflow_call:
     inputs:
+      package-name:
+        description: "Package name for the Docker image (defaults to repository name)"
+        type: string
+        required: false
       platforms:
         description: "Docker platforms to build for"
         type: string
@@ -45,6 +49,6 @@ jobs:
           push: true
           platforms: ${{ inputs.platforms }}
           tags: |
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-            ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}:latest', github.repository) || '' }}
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.package-name || github.event.repository.name }}:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.package-name || github.event.repository.name }}:${{ github.ref_name }}
+            ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/{1}:latest', github.repository_owner, inputs.package-name || github.event.repository.name) || '' }}
