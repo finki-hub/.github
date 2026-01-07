@@ -1,0 +1,29 @@
+name: Reusable MyPy
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: "Directory to run MyPy in"
+        type: string
+        default: "."
+
+jobs:
+  mypy:
+    name: MyPy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Run MyPy
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          uv sync
+          uv run mypy .

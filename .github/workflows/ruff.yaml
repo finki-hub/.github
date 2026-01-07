@@ -1,0 +1,29 @@
+name: Reusable Ruff
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: "Directory to run Ruff in"
+        type: string
+        default: "."
+
+jobs:
+  ruff:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Run Ruff
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          uv sync
+          uv run ruff check .
