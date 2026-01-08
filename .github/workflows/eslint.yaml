@@ -5,12 +5,20 @@ on:
     inputs:
       node-version:
         type: string
-        default: 'lts/*'
+        default: "lts/*"
+      working-directory:
+        description: "Directory to run commands in"
+        type: string
+        default: "."
 
 jobs:
   eslint:
     name: ESLint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6

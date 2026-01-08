@@ -12,6 +12,10 @@ jobs:
   mypy:
     name: MyPy
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -23,7 +27,6 @@ jobs:
         run: uv python install
 
       - name: Run MyPy
-        working-directory: ${{ inputs.working-directory }}
         run: |
           uv sync
           uv run mypy .
