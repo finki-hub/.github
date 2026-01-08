@@ -1,0 +1,50 @@
+name: Reusable Cloudflare Pages
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node.js version to use"
+        type: string
+        default: "lts/*"
+      project-name:
+        description: "Cloudflare Pages project name"
+        type: string
+        required: true
+      directory:
+        description: "Output directory to deploy"
+        type: string
+        default: "dist"
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ inputs.project-name }}
+          directory: ${{ inputs.directory }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
