@@ -16,14 +16,13 @@ on:
         type: string
         default: "dist"
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     name: Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      deployments: write
 
     steps:
       - name: Checkout Repository
