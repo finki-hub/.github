@@ -34,6 +34,12 @@ jobs:
         with:
           submodules: ${{ inputs.submodules }}
 
+      - name: Normalize Owner (lowercase)
+        id: repo
+        run: |
+          echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
+          echo "name=${GITHUB_REPOSITORY#*/}" >> $GITHUB_OUTPUT
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -55,6 +61,6 @@ jobs:
           push: true
           platforms: ${{ inputs.platforms }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ inputs.package-name || github.event.repository.name }}:${{ github.sha }}
-            ghcr.io/${{ github.repository_owner }}/${{ inputs.package-name || github.event.repository.name }}:${{ github.ref_name }}
-            ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/{1}:latest', github.repository_owner, inputs.package-name || github.event.repository.name) || '' }}
+            ghcr.io/${{ steps.repo.outputs.owner }}/${{ inputs.package-name || steps.repo.outputs.name }}:${{ github.sha }}
+            ghcr.io/${{ steps.repo.outputs.owner }}/${{ inputs.package-name || steps.repo.outputs.name }}:${{ github.ref_name }}
+            ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/{1}:latest', steps.repo.outputs.owner, inputs.package-name || steps.repo.outputs.name) || '' }}
