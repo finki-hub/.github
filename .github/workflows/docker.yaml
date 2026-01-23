@@ -23,6 +23,10 @@ on:
         description: "Docker build context"
         type: string
         default: "."
+      free-disk-space:
+        description: "Whether to free disk space before building"
+        type: boolean
+        default: false
 
 jobs:
   docker:
@@ -30,6 +34,18 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     steps:
+      - name: Free disk space
+        if: ${{ inputs.free-disk-space }}
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
