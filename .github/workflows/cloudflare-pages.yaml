@@ -7,6 +7,10 @@ on:
         description: "Node.js version to use"
         type: string
         default: "lts/*"
+      working-directory:
+        description: "Working directory for the Pages project"
+        type: string
+        default: "."
       project-name:
         description: "Cloudflare Pages project name"
         type: string
@@ -29,6 +33,10 @@ jobs:
     name: Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -49,4 +57,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy ${{ inputs.directory }} --project-name=${{ inputs.project-name }}
+          command: pages deploy ${{ inputs.working-directory }}/${{ inputs.directory }} --project-name=${{ inputs.project-name }}
