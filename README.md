@@ -1,12 +1,13 @@
 # finki-hub/.github
 
-Org-wide defaults and reusable GitHub Actions for finki-hub.
+Organization wide defaults and reusable GitHub Actions for finki-hub.
 
 ## What’s Inside
 
 - [profile/README.md](profile/README.md): Organization profile shown on the org page.
-- [.github/workflows/eslint.yaml](.github/workflows/eslint.yaml): Reusable ESLint workflow for other repos.
-- Optional community health files (issue/PR templates, etc.) if added under `.github/`.
+- Reusable workflows in [.github/workflows/](.github/workflows/): ESLint, Ruff, mypy, TSC, Vitest, Docker, Cloudflare Pages, Cloudflare Workers, Semantic Release, and Dependabot.
+- Community health files in [.github/](.github/): code of conduct, security policy, PR template, and issue templates.
+- Repo defaults: [.editorconfig](.editorconfig) and [.sonarcloud.properties](.sonarcloud.properties).
 
 ## Reuse a Workflow
 
