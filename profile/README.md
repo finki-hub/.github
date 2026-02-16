@@ -4,7 +4,7 @@ Welcome! This organization hosts a collection of open-source projects focused on
 
 Our goal is to make publicly available information from the faculty easier to access and utilize for students, developers, and anyone interested in FINKI's activities, schedules, resources, or other relevant data points.
 
-The core projects include [finki-scraper](https://github.com/finki-hub/finki-scraper) (core scraping engine), [finki-discord-bot](https://github.com/finki-hub/finki-discord-bot) (bot providing easy access to the data), [finki-chat-bot](https://github.com/finki-hub/finki-chat-bot) (RAG-based chatbot). Most of them are supposed to be used together (i.e. scrape the data then provide it). Please refer to the individual repository READMEs for specific setup and usage instructions.
+The core projects include [services-scraper](https://github.com/finki-hub/services-scraper) (core scraping engine), [discord-bot](https://github.com/finki-hub/discord-bot) (bot providing easy access to the data), [chat-bot](https://github.com/finki-hub/chat-bot) (RAG-based chatbot). Most of them are supposed to be used together (i.e. scrape the data then provide it). Please refer to the individual repository READMEs for specific setup and usage instructions.
 
 ## Licensing
 
