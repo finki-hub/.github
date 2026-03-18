@@ -26,7 +26,10 @@ jobs:
       - name: Set up Python
         run: uv python install
 
-      - name: Run Ruff
+      - name: Run Ruff Linter
         run: |
           uv sync
           uv run ruff check .
+
+      - name: Run Ruff Formatter
+        run: uv run ruff format --check .
