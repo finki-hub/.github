@@ -14,10 +14,7 @@ jobs:
         id: metadata
 
       - name: Approve and Enable Auto-Merge
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
-          (steps.metadata.outputs.dependency-type == 'indirect' && steps.metadata.outputs.update-type == '')
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         run: |
           gh pr review --approve "$PR_URL" --body "Auto-approving Dependabot PR (minor/patch)."
           gh pr merge --auto --rebase "$PR_URL"
