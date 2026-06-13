@@ -3,10 +3,15 @@ name: Reusable Dependabot
 on:
   workflow_call:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   dependabot:
     name: Dependabot Auto-Merge
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Fetch Dependabot Metadata
