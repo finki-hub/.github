@@ -1,0 +1,14 @@
+name: Register Problem Matcher
+description: Register a bundled GitHub problem matcher so tool output annotates the PR diff.
+
+inputs:
+  tool:
+    description: "Which matcher to register: eslint, tsc, or mypy"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Add problem matcher
+      shell: bash
+      run: echo "::add-matcher::${{ github.action_path }}/${{ inputs.tool }}.json"

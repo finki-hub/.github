@@ -8,10 +8,18 @@ on:
         type: string
         default: "."
 
+permissions:
+  contents: read
+
+concurrency:
+  group: mypy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   mypy:
     name: MyPy
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
@@ -22,11 +30,18 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
 
       - name: Set up Python
         run: uv python install
 
+      - name: Register MyPy problem matcher
+        uses: finki-hub/.github/.github/actions/problem-matchers@ci-verify
+        with:
+          tool: mypy
+
       - name: Run MyPy
         run: |
           uv sync
-          uv run mypy .
+          uv run mypy --show-column-numbers --no-color-output .

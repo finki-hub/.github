@@ -6,11 +6,27 @@ on:
       node-version:
         type: string
         default: "lts/*"
+      working-directory:
+        description: "Directory to run commands in"
+        type: string
+        default: "."
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vitest-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   vitest:
     name: Vitest
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -19,9 +35,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 
       - name: Install Dependencies
         run: npm ci
 
       - name: Run Vitest
-        run: npm test
+        run: npm test -- --reporter=default --reporter=github-actions

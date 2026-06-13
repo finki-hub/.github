@@ -11,10 +11,18 @@ on:
         type: string
         default: "."
 
+permissions:
+  contents: read
+
+concurrency:
+  group: eslint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   eslint:
     name: ESLint
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
@@ -27,9 +35,16 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 
       - name: Install Dependencies
         run: npm ci
+
+      - name: Register ESLint problem matcher
+        uses: finki-hub/.github/.github/actions/problem-matchers@ci-verify
+        with:
+          tool: eslint
 
       - name: Run ESLint
         run: npm run lint
