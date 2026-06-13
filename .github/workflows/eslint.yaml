@@ -42,7 +42,7 @@ jobs:
         run: npm ci
 
       - name: Register ESLint problem matcher
-        uses: finki-hub/.github/.github/actions/problem-matchers@ci-verify
+        uses: finki-hub/.github/.github/actions/problem-matchers@main
         with:
           tool: eslint
 
