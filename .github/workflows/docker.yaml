@@ -28,10 +28,19 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   docker:
     name: Build & Push Image
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     if: github.actor != 'dependabot[bot]'
     steps:
       - name: Free disk space
@@ -84,3 +93,5 @@ jobs:
           platforms: ${{ inputs.platforms }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
