@@ -31,6 +31,11 @@ on:
         description: "Build cache backend: 'gha' (GitHub Actions cache, ~10GB/repo limit) or 'registry' (stored in GHCR, unbounded and cross-branch). Use 'registry' for repos that build many or large images."
         type: string
         default: "gha"
+      build-args:
+        description: "Newline-separated KEY=value build args passed to docker build"
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -133,6 +138,7 @@ jobs:
         with:
           context: ${{ inputs.context }}
           file: ${{ inputs.dockerfile }}
+          build-args: ${{ inputs.build-args }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
