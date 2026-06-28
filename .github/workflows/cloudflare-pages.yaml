@@ -57,6 +57,9 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          # Public PostHog ingest key; set the org/repo Actions variable to enable, unset = analytics off.
+          VITE_POSTHOG_KEY: ${{ vars.VITE_POSTHOG_KEY }}
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
