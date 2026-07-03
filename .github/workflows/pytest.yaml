@@ -1,0 +1,62 @@
+name: Reusable Pytest
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: "Directory to run commands in"
+        type: string
+        default: "."
+      python-version:
+        description: "Python version to install. When omitted, uv resolves the project version."
+        type: string
+        default: ""
+      sync-args:
+        description: "Additional arguments passed to uv sync"
+        type: string
+        default: ""
+      pytest-args:
+        description: "Arguments passed to pytest"
+        type: string
+        default: "-q"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pytest-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        env:
+          PYTHON_VERSION: ${{ inputs.python-version }}
+        run: |
+          if [ -n "$PYTHON_VERSION" ]; then
+            uv python install "$PYTHON_VERSION"
+          else
+            uv python install
+          fi
+
+      - name: Install Dependencies
+        run: uv sync ${{ inputs.sync-args }}
+
+      - name: Run Pytest
+        run: uv run pytest ${{ inputs.pytest-args }}

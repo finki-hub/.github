@@ -1,0 +1,70 @@
+name: Reusable Playwright
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        default: "lts/*"
+      working-directory:
+        description: "Directory to run commands in"
+        type: string
+        default: "."
+      install-command:
+        description: "Command used to install project dependencies"
+        type: string
+        default: "npm ci"
+      playwright-install-command:
+        description: "Command used to install Playwright browsers and OS dependencies"
+        type: string
+        default: "npx --no-install playwright install --with-deps chromium"
+      test-command:
+        description: "Command used to run Playwright tests"
+        type: string
+        default: "npm run e2e"
+      env-vars:
+        description: "Optional newline-separated non-secret KEY=value environment variables for the test run"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playwright-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    name: Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Export environment variables
+        if: ${{ inputs.env-vars != '' }}
+        env:
+          ENV_VARS: ${{ inputs.env-vars }}
+        run: printf '%s\n' "$ENV_VARS" >> "$GITHUB_ENV"
+
+      - name: Install Dependencies
+        run: ${{ inputs.install-command }}
+
+      - name: Install Playwright
+        run: ${{ inputs.playwright-install-command }}
+
+      - name: Run Playwright
+        run: ${{ inputs.test-command }}
