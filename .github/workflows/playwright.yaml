@@ -14,10 +14,14 @@ on:
         description: "Command used to install project dependencies"
         type: string
         default: "npm ci"
-      playwright-install-command:
-        description: "Command used to install Playwright browsers and OS dependencies"
+      container-image:
+        description: "Playwright Docker image with browsers and system dependencies preinstalled"
         type: string
-        default: "npx --no-install playwright install --with-deps chromium"
+        default: "mcr.microsoft.com/playwright:v1.61.1-noble"
+      playwright-install-command:
+        description: "Command used to install Playwright browsers"
+        type: string
+        default: "npx --no-install playwright install chromium"
       test-command:
         description: "Command used to run Playwright tests"
         type: string
@@ -38,6 +42,9 @@ jobs:
   playwright:
     name: Playwright
     runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container-image }}
+      options: --user 1001
     timeout-minutes: 20
     defaults:
       run:
