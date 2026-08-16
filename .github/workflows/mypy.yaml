@@ -26,11 +26,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
         with:
+          version: 0.11.21
           enable-cache: true
 
       - name: Set up Python
@@ -43,5 +44,5 @@ jobs:
 
       - name: Run MyPy
         run: |
-          uv sync
-          uv run mypy --show-column-numbers --no-color-output .
+          uv sync --locked --dev --no-install-project --no-build
+          uv run --locked --no-sync --no-build mypy --show-column-numbers --no-color-output .
