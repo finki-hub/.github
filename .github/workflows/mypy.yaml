@@ -43,5 +43,5 @@ jobs:
 
       - name: Run MyPy
         run: |
-          uv sync
-          uv run mypy --show-column-numbers --no-color-output .
+          uv sync --locked --dev --no-install-project --no-build
+          uv run --locked --no-sync --no-build mypy --show-column-numbers --no-color-output .

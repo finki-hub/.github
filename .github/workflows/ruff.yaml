@@ -38,8 +38,8 @@ jobs:
 
       - name: Run Ruff Linter
         run: |
-          uv sync
-          uv run ruff check --output-format=github .
+          uv sync --locked --dev --no-install-project --no-build
+          uv run --locked --no-sync --no-build ruff check --output-format=github .
 
       - name: Run Ruff Formatter
-        run: uv run ruff format --check --diff .
+        run: uv run --locked --no-sync --no-build ruff format --check --diff .
