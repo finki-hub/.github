@@ -1,4 +1,4 @@
-name: Reusable Pytest
+name: Reusable Pytest with PostgreSQL
 
 on:
   workflow_call:
@@ -11,27 +11,37 @@ on:
         description: "Python version to install. When omitted, uv resolves the project version."
         type: string
         default: ""
-      sync-args:
-        description: "Additional arguments passed to uv sync"
+      postgres-image:
+        description: "PostgreSQL container image"
         type: string
-        default: "--locked"
-      pytest-args:
-        description: "Arguments passed to pytest"
-        type: string
-        default: "-q"
+        default: "pgvector/pgvector:pg17"
 
 permissions:
   contents: read
 
 concurrency:
-  group: pytest-${{ github.workflow }}-${{ github.ref }}
+  group: pytest-postgres-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  pytest:
-    name: Pytest
+  pytest-postgres:
+    name: Pytest with PostgreSQL
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: ${{ inputs.postgres-image }}
+        env:
+          POSTGRES_DB: api_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d api_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
@@ -56,7 +66,9 @@ jobs:
           fi
 
       - name: Install Dependencies
-        run: uv sync ${{ inputs.sync-args }}
+        run: uv sync --locked --no-build
 
       - name: Run Pytest
-        run: uv run pytest ${{ inputs.pytest-args }}
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/api_test
+        run: uv run --locked --no-sync --no-build pytest tests/integration -q

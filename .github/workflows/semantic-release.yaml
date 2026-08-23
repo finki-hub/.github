@@ -10,8 +10,9 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: release-${{ github.workflow }}-${{ github.ref }}
+  group: release-${{ github.repository }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   release:
@@ -30,7 +31,6 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: lts/*
-          registry-url: https://registry.npmjs.org
           cache: npm
 
       - name: Install Dependencies
@@ -51,5 +51,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
-        run: npx semantic-release
+        run: npx --no-install semantic-release

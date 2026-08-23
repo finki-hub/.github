@@ -1,30 +1,35 @@
-name: Reusable ESLint
+name: Reusable Documentation Check
 
 on:
   workflow_call:
     inputs:
       node-version:
+        description: "Node.js version to use"
         type: string
         default: "lts/*"
       working-directory:
         description: "Directory to run commands in"
         type: string
         default: "."
-      script:
-        description: "npm script used to run ESLint"
+      lint-script:
+        description: "npm script used to lint documentation"
         type: string
-        default: "lint"
+        default: "lint:md"
+      build-script:
+        description: "npm script used to build documentation"
+        type: string
+        default: "docs:build"
 
 permissions:
   contents: read
 
 concurrency:
-  group: eslint-${{ github.workflow }}-${{ github.ref }}
+  group: docs-check-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  eslint:
-    name: ESLint
+  docs-check:
+    name: Lint and Build Documentation
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
@@ -43,14 +48,14 @@ jobs:
           cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
-      - name: Register ESLint problem matcher
-        uses: finki-hub/.github/.github/actions/problem-matchers@main
-        with:
-          tool: eslint
-
-      - name: Run ESLint
+      - name: Lint Documentation
         env:
-          NPM_SCRIPT: ${{ inputs.script }}
+          NPM_SCRIPT: ${{ inputs.lint-script }}
+        run: npm run "$NPM_SCRIPT"
+
+      - name: Build Documentation
+        env:
+          NPM_SCRIPT: ${{ inputs.build-script }}
         run: npm run "$NPM_SCRIPT"
