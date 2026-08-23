@@ -69,7 +69,18 @@ jobs:
           node <<'NODE'
           const { spawnSync } = require("node:child_process");
 
-          const buildArgs = JSON.parse(process.env.BUILD_ARGS);
+          let buildArgs;
+          try {
+            buildArgs = JSON.parse(process.env.BUILD_ARGS ?? "[]");
+          } catch (error) {
+            if (error instanceof SyntaxError) {
+              throw new TypeError("build-args must be valid JSON containing an array of strings", {
+                cause: error,
+              });
+            }
+            throw error;
+          }
+
           if (!Array.isArray(buildArgs) || !buildArgs.every((arg) => typeof arg === "string")) {
             throw new TypeError("build-args must be a JSON array of strings");
           }
