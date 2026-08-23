@@ -4,28 +4,66 @@ on:
   workflow_call:
     inputs:
       node-version:
+        description: "Node.js version to use when node-versions is omitted"
         type: string
         default: "lts/*"
+      node-versions:
+        description: "JSON array of Node.js versions to test"
+        type: string
+        default: ""
+      max-parallel:
+        description: "Maximum number of matrix jobs to run in parallel"
+        type: number
+        default: 1
       working-directory:
         description: "Directory to run commands in"
         type: string
         default: "."
+      test-args:
+        description: "Arguments appended to npm test; use an empty string for none"
+        type: string
+        default: "--reporter=default --reporter=github-actions"
+      required-status:
+        description: "Expose one aggregate Vitest status for the matrix"
+        type: boolean
+        default: false
+      concurrency-group:
+        description: "Custom concurrency group"
+        type: string
+        default: ""
+      cancel-in-progress:
+        description: "Cancel an in-progress run in the same concurrency group"
+        type: boolean
+        default: true
+    secrets:
+      CAS_USERNAME:
+        required: false
+      CAS_PASSWORD:
+        required: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: vitest-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ inputs.concurrency-group != '' && inputs.concurrency-group || format('vitest-{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: ${{ inputs.cancel-in-progress }}
 
 jobs:
   vitest:
-    name: Vitest
+    name: ${{ inputs.node-versions != '' && format('Vitest (Node {0})', matrix.node-version) || 'Vitest' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ inputs.max-parallel }}
+      matrix:
+        node-version: ${{ fromJSON(inputs.node-versions != '' && inputs.node-versions || format('["{0}"]', inputs.node-version)) }}
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
+    env:
+      CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+      CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
 
     steps:
       - name: Checkout Repository
@@ -34,7 +72,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ matrix.node-version }}
           cache: npm
           cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 
@@ -42,4 +80,29 @@ jobs:
         run: npm ci
 
       - name: Run Vitest
-        run: npm test -- --reporter=default --reporter=github-actions
+        if: ${{ inputs.test-args != '' }}
+        env:
+          TEST_ARGS: ${{ inputs.test-args }}
+        run: |
+          read -r -a test_args <<< "$TEST_ARGS"
+          npm test -- "${test_args[@]}"
+
+      - name: Run Vitest without Additional Arguments
+        if: ${{ inputs.test-args == '' }}
+        run: npm test
+
+  vitest-required:
+    name: ${{ inputs.required-status && 'Vitest' || 'Vitest aggregate (disabled)' }}
+    needs: vitest
+    if: ${{ always() && inputs.required-status }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify the Vitest matrix passed
+        env:
+          VITEST_RESULT: ${{ needs.vitest.result }}
+        run: |
+          if [ "$VITEST_RESULT" != "success" ]; then
+            echo "One or more Vitest matrix jobs failed (result: $VITEST_RESULT)."
+            exit 1
+          fi
