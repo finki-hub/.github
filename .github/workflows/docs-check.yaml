@@ -1,0 +1,61 @@
+name: Reusable Documentation Check
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node.js version to use"
+        type: string
+        default: "lts/*"
+      working-directory:
+        description: "Directory to run commands in"
+        type: string
+        default: "."
+      lint-script:
+        description: "npm script used to lint documentation"
+        type: string
+        default: "lint:md"
+      build-script:
+        description: "npm script used to build documentation"
+        type: string
+        default: "docs:build"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-check:
+    name: Lint and Build Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Documentation
+        env:
+          NPM_SCRIPT: ${{ inputs.lint-script }}
+        run: npm run "$NPM_SCRIPT"
+
+      - name: Build Documentation
+        env:
+          NPM_SCRIPT: ${{ inputs.build-script }}
+        run: npm run "$NPM_SCRIPT"
