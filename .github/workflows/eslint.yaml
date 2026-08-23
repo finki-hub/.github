@@ -10,6 +10,10 @@ on:
         description: "Directory to run commands in"
         type: string
         default: "."
+      script:
+        description: "npm script used to run ESLint"
+        type: string
+        default: "lint"
 
 permissions:
   contents: read
@@ -47,4 +51,6 @@ jobs:
           tool: eslint
 
       - name: Run ESLint
-        run: npm run lint
+        env:
+          NPM_SCRIPT: ${{ inputs.script }}
+        run: npm run "$NPM_SCRIPT"

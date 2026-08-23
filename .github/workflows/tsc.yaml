@@ -10,6 +10,10 @@ on:
         description: "Directory to run commands in"
         type: string
         default: "."
+      script:
+        description: "npm script used for the TypeScript check; when omitted, runs tsc directly"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -47,4 +51,11 @@ jobs:
           tool: tsc
 
       - name: TypeScript Check
+        if: ${{ inputs.script == '' }}
         run: npx tsc --noEmit --pretty false
+
+      - name: TypeScript Check with npm Script
+        if: ${{ inputs.script != '' }}
+        env:
+          NPM_SCRIPT: ${{ inputs.script }}
+        run: npm run "$NPM_SCRIPT"
