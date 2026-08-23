@@ -19,6 +19,10 @@ on:
         description: "Output directory to deploy"
         type: string
         default: "dist"
+      build-args:
+        description: "JSON array of arguments appended to npm run build"
+        type: string
+        default: "[]"
     secrets:
       CLOUDFLARE_API_TOKEN:
         required: true
@@ -60,7 +64,23 @@ jobs:
         env:
           # Public PostHog ingest key; set the org/repo Actions variable to enable, unset = analytics off.
           VITE_POSTHOG_KEY: ${{ vars.VITE_POSTHOG_KEY }}
-        run: npm run build
+          BUILD_ARGS: ${{ inputs.build-args }}
+        run: |
+          node <<'NODE'
+          const { spawnSync } = require("node:child_process");
+
+          const buildArgs = JSON.parse(process.env.BUILD_ARGS);
+          if (!Array.isArray(buildArgs) || !buildArgs.every((arg) => typeof arg === "string")) {
+            throw new TypeError("build-args must be a JSON array of strings");
+          }
+
+          const args = ["run", "build", ...buildArgs];
+          const result = spawnSync("npm", args, { stdio: "inherit" });
+          if (result.error) {
+            throw result.error;
+          }
+          process.exit(result.status ?? 1);
+          NODE
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
