@@ -26,9 +26,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
-      - name: Download Actionlint
-        run: bash <(curl --fail --silent --show-error --location https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-
       - name: Check Workflow Files
+        uses: docker://rhysd/actionlint:latest
+        with:
         # Actionlint 1.7.12 predates GitHub's concurrency.queue field.
-        run: ./actionlint -color -ignore 'unexpected key "queue" for "concurrency" section'
+          args: -color -ignore unexpected.*queue.*concurrency
