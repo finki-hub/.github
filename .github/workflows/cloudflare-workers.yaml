@@ -11,6 +11,10 @@ on:
         description: "Working directory for the Worker project"
         type: string
         default: "."
+      install-directory:
+        description: "Directory containing package-lock.json; defaults to the Worker project directory"
+        type: string
+        default: ""
     secrets:
       CLOUDFLARE_API_TOKEN:
         required: true
@@ -43,9 +47,10 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: npm
-          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+          cache-dependency-path: ${{ inputs.install-directory != '' && format('{0}/package-lock.json', inputs.install-directory) || format('{0}/package-lock.json', inputs.working-directory) }}
 
       - name: Install Dependencies
+        working-directory: ${{ inputs.install-directory != '' && inputs.install-directory || inputs.working-directory }}
         run: npm ci
 
       - name: Deploy to Cloudflare Workers
