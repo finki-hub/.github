@@ -1,4 +1,4 @@
-name: Reusable Pytest
+name: Reusable Pytest with PostgreSQL
 
 on:
   workflow_call:
@@ -18,20 +18,38 @@ on:
       pytest-args:
         description: "Arguments passed to pytest"
         type: string
-        default: "-q"
+        default: "tests/integration -q"
+      postgres-image:
+        description: "PostgreSQL container image"
+        type: string
+        default: "pgvector/pgvector:pg17"
 
 permissions:
   contents: read
 
 concurrency:
-  group: pytest-${{ github.workflow }}-${{ github.ref }}
+  group: pytest-postgres-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  pytest:
-    name: Pytest
+  pytest-postgres:
+    name: Pytest with PostgreSQL
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: ${{ inputs.postgres-image }}
+        env:
+          POSTGRES_DB: api_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d api_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
@@ -59,4 +77,6 @@ jobs:
         run: uv sync ${{ inputs.sync-args }}
 
       - name: Run Pytest
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/api_test
         run: uv run pytest ${{ inputs.pytest-args }}
