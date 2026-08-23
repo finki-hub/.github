@@ -1,0 +1,34 @@
+name: Actionlint
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - ".github/workflows/**"
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actionlint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actionlint:
+    name: Actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Download Actionlint
+        run: bash <(curl --fail --silent --show-error --location https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+
+      - name: Check Workflow Files
+        # Actionlint 1.7.12 predates GitHub's concurrency.queue field.
+        run: ./actionlint -color -ignore 'unexpected key "queue" for "concurrency" section'
