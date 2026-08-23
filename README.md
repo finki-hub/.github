@@ -34,7 +34,7 @@ commit SHA when a repository needs a reviewed, stable revision.
 | `vitest.yaml` | Run Vitest, optionally as a matrix | Node versions, working directory, test arguments, matrix controls | `package-lock.json` and a `test` npm script; optional `CAS_USERNAME` and `CAS_PASSWORD` secrets |
 | `playwright.yaml` | Run browser tests in the Playwright container | Node version, working directory, container, commands, environment variables | `package-lock.json` and the configured test commands |
 | `pytest.yaml` | Run Pytest with uv | Python version, working directory, sync arguments, Pytest arguments | A current committed `uv.lock` by default |
-| `pytest-postgres.yaml` | Run Pytest with PostgreSQL and pgvector | Python version, working directory, sync arguments, Pytest arguments, PostgreSQL image | A current committed `uv.lock`; tests must use `TEST_DATABASE_URL` |
+| `pytest-postgres.yaml` | Run Pytest with PostgreSQL and pgvector | Python version, working directory, PostgreSQL image | A current committed `uv.lock`; integration tests must use `TEST_DATABASE_URL` |
 | `ruff.yaml` | Run Ruff lint and format checks | Working directory | A current committed `uv.lock` with Ruff in the development dependencies |
 | `mypy.yaml` | Run MyPy | Working directory | A current committed `uv.lock` with MyPy in the development dependencies |
 | `docker.yaml` | Build and publish multi-platform images to GHCR | Image name, platforms, Dockerfile, context, cache, build arguments | `contents: read` and `packages: write`; build arguments must not contain secrets |
