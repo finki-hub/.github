@@ -31,7 +31,7 @@ commit SHA when a repository needs a reviewed, stable revision.
 | `docs-check.yaml` | Lint and build documentation | Node version, working directory, lint script, build script | `package-lock.json` and the configured npm scripts |
 | `eslint.yaml` | Run ESLint | Node version, working directory, npm script | `package-lock.json` and an ESLint npm script |
 | `tsc.yaml` | Run TypeScript checks | Node version, working directory, optional npm script | `package-lock.json`; TypeScript or the configured npm script |
-| `vitest.yaml` | Run Vitest, optionally as a matrix | Node versions, working directory, test arguments, matrix controls | `package-lock.json` and a `test` npm script; optional `CAS_USERNAME` and `CAS_PASSWORD` secrets |
+| `vitest.yaml` | Run Vitest, optionally as a matrix | Node versions, working directory, JSON array of test arguments, matrix controls | `package-lock.json` and a `test` npm script; optional `CAS_USERNAME` and `CAS_PASSWORD` secrets |
 | `playwright.yaml` | Run browser tests in the Playwright container | Node version, working directory, container, commands, environment variables | `package-lock.json` and the configured test commands |
 | `pytest.yaml` | Run Pytest with uv | Python version, working directory, sync arguments, Pytest arguments | A current committed `uv.lock` by default |
 | `pytest-postgres.yaml` | Run Pytest with PostgreSQL and pgvector | Python version, working directory, PostgreSQL image | A current committed `uv.lock`; integration tests must use `TEST_DATABASE_URL` |

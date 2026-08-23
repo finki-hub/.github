@@ -20,9 +20,9 @@ on:
         type: string
         default: "."
       test-args:
-        description: "Arguments appended to npm test; use an empty string for none"
+        description: "JSON array of arguments appended to npm test; use an empty string for none"
         type: string
-        default: "--reporter=default --reporter=github-actions"
+        default: '["--reporter=default","--reporter=github-actions"]'
       required-status:
         description: "Expose one aggregate Vitest status for the matrix"
         type: boolean
@@ -83,8 +83,20 @@ jobs:
           CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
           TEST_ARGS: ${{ inputs.test-args }}
         run: |
-          read -r -a test_args <<< "$TEST_ARGS"
-          npm test -- "${test_args[@]}"
+          node <<'NODE'
+          const { spawnSync } = require("node:child_process");
+
+          const testArgs = JSON.parse(process.env.TEST_ARGS);
+          if (!Array.isArray(testArgs) || !testArgs.every((arg) => typeof arg === "string")) {
+            throw new TypeError("test-args must be a JSON array of strings");
+          }
+
+          const result = spawnSync("npm", ["test", "--", ...testArgs], { stdio: "inherit" });
+          if (result.error) {
+            throw result.error;
+          }
+          process.exit(result.status ?? 1);
+          NODE
 
       - name: Run Vitest without Additional Arguments
         if: ${{ inputs.test-args == '' }}
