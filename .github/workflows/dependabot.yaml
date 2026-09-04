@@ -2,11 +2,6 @@ name: Reusable Dependabot
 
 on:
   workflow_call:
-    inputs:
-      auto-merge-uv:
-        description: "Automatically approve and merge uv dependency updates"
-        type: boolean
-        default: true
 
 permissions:
   contents: write
@@ -20,13 +15,11 @@ jobs:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Fetch Dependabot Metadata
-        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3
+        uses: dependabot/fetch-metadata@v3
         id: metadata
 
       - name: Approve and Enable Auto-Merge
-        if: >-
-          steps.metadata.outputs.update-type != 'version-update:semver-major' &&
-          (inputs.auto-merge-uv || steps.metadata.outputs.package-ecosystem != 'uv')
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         run: |
           gh pr review --approve "$PR_URL" --body "Auto-approving Dependabot PR (minor/patch)."
           gh pr merge --auto --rebase "$PR_URL"
