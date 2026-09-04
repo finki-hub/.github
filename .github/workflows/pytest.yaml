@@ -19,6 +19,15 @@ on:
         description: "Arguments passed to pytest"
         type: string
         default: "-q"
+      require-cas-credentials:
+        description: "Fail before tests when CAS credentials are unavailable"
+        type: boolean
+        default: false
+    secrets:
+      CAS_USERNAME:
+        required: false
+      CAS_PASSWORD:
+        required: false
 
 permissions:
   contents: read
@@ -58,5 +67,19 @@ jobs:
       - name: Install Dependencies
         run: uv sync ${{ inputs.sync-args }}
 
+      - name: Require CAS Credentials
+        if: ${{ inputs.require-cas-credentials }}
+        env:
+          CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+          CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+        run: |
+          if [ -z "$CAS_USERNAME" ] || [ -z "$CAS_PASSWORD" ]; then
+            echo "::error::CAS credentials are required but unavailable."
+            exit 1
+          fi
+
       - name: Run Pytest
+        env:
+          CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+          CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
         run: uv run pytest ${{ inputs.pytest-args }}
