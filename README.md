@@ -41,7 +41,7 @@ commit SHA when a repository needs a reviewed, stable revision.
 | `cloudflare-pages.yaml` | Build and deploy Cloudflare Pages | Node version, working directory, project name, output directory | `package-lock.json` plus `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` |
 | `cloudflare-workers.yaml` | Deploy Cloudflare Workers | Node version, worker directory, install directory | `package-lock.json` plus `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` |
 | `semantic-release.yaml` | Verify and publish semantic releases | None | `semantic-release` installed from `package-lock.json`; `lint`, `test`, and `build` scripts; caller grants contents, issues, pull requests, and ID token write permissions; npm trusted publisher targets the caller workflow filename |
-| `dependabot.yaml` | Approve and auto-merge non-major Dependabot updates | None | `contents: write` and `pull-requests: write`; required CI checks configured in repository rules |
+| `dependabot.yaml` | Approve and auto-merge non-major Dependabot updates | Optional uv auto-merge toggle | `contents: write` and `pull-requests: write`; required CI checks configured in repository rules |
 
 ## Caller Guidelines
 
