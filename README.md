@@ -33,7 +33,7 @@ commit SHA when a repository needs a reviewed, stable revision.
 | `tsc.yaml` | Run TypeScript checks | Node version, working directory, optional npm script | `package-lock.json`; TypeScript or the configured npm script |
 | `vitest.yaml` | Run Vitest, optionally as a matrix | Node versions, working directory, JSON array of test arguments, matrix controls | `package-lock.json` and a `test` npm script; optional `CAS_USERNAME` and `CAS_PASSWORD` secrets |
 | `playwright.yaml` | Run browser tests in the Playwright container | Node version, working directory, container, commands, environment variables | `package-lock.json` and the configured test commands |
-| `pytest.yaml` | Run Pytest with uv | Python version, working directory, sync arguments, Pytest arguments | A current committed `uv.lock` by default |
+| `pytest.yaml` | Run Pytest with uv | Python version, working directory, sync arguments, Pytest arguments, optional CAS credential requirement | A current committed `uv.lock` by default; optional `CAS_USERNAME` and `CAS_PASSWORD` secrets |
 | `pytest-postgres.yaml` | Run Pytest with PostgreSQL and pgvector | Python version, working directory, PostgreSQL image | A current committed `uv.lock`; integration tests must use `TEST_DATABASE_URL` |
 | `ruff.yaml` | Run Ruff lint and format checks | Working directory | A current committed `uv.lock` with Ruff in the development dependencies |
 | `mypy.yaml` | Run MyPy | Working directory | A current committed `uv.lock` with MyPy in the development dependencies |

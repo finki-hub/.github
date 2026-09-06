@@ -19,6 +19,15 @@ on:
         description: "Arguments passed to pytest"
         type: string
         default: "-q"
+      require-cas-credentials:
+        description: "Fail before tests when CAS credentials are unavailable"
+        type: boolean
+        default: false
+    secrets:
+      CAS_USERNAME:
+        required: false
+      CAS_PASSWORD:
+        required: false
 
 permissions:
   contents: read
@@ -39,6 +48,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Install uv
         uses: astral-sh/setup-uv@v10.0.1
@@ -56,7 +67,41 @@ jobs:
           fi
 
       - name: Install Dependencies
-        run: uv sync ${{ inputs.sync-args }}
+        env:
+          UV_SYNC_ARGS: ${{ inputs.sync-args }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import shlex
+          import subprocess
+
+          subprocess.run(["uv", "sync", *shlex.split(os.environ["UV_SYNC_ARGS"])], check=True)
+          PY
+
+      - name: Require CAS Credentials
+        if: ${{ inputs.require-cas-credentials }}
+        env:
+          CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+          CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+        run: |
+          if [ -z "$CAS_USERNAME" ] || [ -z "$CAS_PASSWORD" ]; then
+            echo "::error::CAS credentials are required but unavailable."
+            exit 1
+          fi
 
       - name: Run Pytest
-        run: uv run pytest ${{ inputs.pytest-args }}
+        env:
+          CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+          CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+          PYTEST_ARGS: ${{ inputs.pytest-args }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import shlex
+          import subprocess
+
+          subprocess.run(
+              [".venv/bin/pytest", *shlex.split(os.environ["PYTEST_ARGS"])],
+              check=True,
+          )
+          PY
