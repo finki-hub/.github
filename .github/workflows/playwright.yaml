@@ -17,7 +17,7 @@ on:
       container-image:
         description: "Playwright Docker image with browsers and system dependencies preinstalled"
         type: string
-        default: "mcr.microsoft.com/playwright:v1.61.1-noble"
+        default: "mcr.microsoft.com/playwright:v1.64.0-noble"
       playwright-install-command:
         description: "Command used to install Playwright browsers"
         type: string
